@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Love Letter</title>
+  <style>
+    body {
+      background: #ffe6e6;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 50px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #envelope {
+      position: relative;
+      margin: 100px auto;
+      width: 280px;
+      height: 180px;
+      background-color: #f9c5c8;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      overflow: visible;
+    }
+
+    .flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 140px solid transparent;
+      border-right: 140px solid transparent;
+      border-bottom: 90px solid #f48c8c;
+      z-index: 3;
+      transform-origin: top;
+      transition: all 0.6s ease;
+    }
+
+    .flap.open {
+      transform: rotateX(180deg);
+      z-index: 0;
+    }
+
+    .letter {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 240px;
+      background: white;
+      border-radius: 5px;
+      z-index: 2;
+      transition: transform 0.6s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 16px;
+      padding: 10px;
+      visibility: hidden;
+    }
+
+    .letter.open {
+      transform: translateY(-120px);
+      visibility: visible;
+    }
+
+    .letter iframe {
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    .bottom-fold {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 140px solid transparent;
+      border-right: 140px solid transparent;
+      border-top: 90px solid #f48c8c;
+      z-index: 1;
+    }
+
+    .buttons {
+      margin-top: 40px;
+    }
+
+    .btn {
+      background: white;
+      border: 2px solid #f48c8c;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #f48c8c;
+      color: white;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 30px;
+      color: red;
+      opacity: 0;
+      animation: floatUp 2s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-180px) scale(1.5);
+        opacity: 0;
+      }
+    }
+
+    /* Falling tulips */
+    .tulip {
+      position: fixed;
+      top: -60px;
+      width: 40px;
+      height: auto;
+      pointer-events: none;
+      animation: fall linear infinite;
+      z-index: 10;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="envelope">
+    <div class="flap" id="flap"></div>
+    <div class="letter" id="letter">
+      <div>I miss you so much Et! 💌</div>
+      <iframe src="https://giphy.com/embed/Kwi8MAKTXBsbPUUnK9" 
+              width="100" height="100" 
+              allowFullScreen></iframe>
+    </div>
+    <div class="bottom-fold"></div>
+  </div>
+
+  <div class="buttons">
+    <button class="btn" onclick="openEnvelope()">OPEN</button>
+    <button class="btn" onclick="resetEnvelope()">RESET</button>
+  </div>
+
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f9efb3a37e.mp3" preload="auto"></audio>
+
+  <div id="heartContainer"></div>
+
+  <script>
+    const flap = document.getElementById('flap');
+    const letter = document.getElementById('letter');
+    const heartContainer = document.getElementById('heartContainer');
+    const envelope = document.getElementById('envelope');
+    const music = document.getElementById('bgMusic');
+
+    function openEnvelope() {
+      flap.classList.add('open');
+      letter.classList.add('open');
+      generateHearts();
+      startTulips();
+      music.play();
+    }
+
+    function resetEnvelope() {
+      flap.classList.remove('open');
+      letter.classList.remove('open');
+      heartContainer.innerHTML = '';
+      stopTulips();
+      music.pause();
+      music.currentTime = 0;
+    }
+
+    function generateHearts() {
+      for (let i = 0; i < 6; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.innerHTML = '❤️';
+
+        const rect = envelope.getBoundingClientRect();
+        const x = rect.left + rect.width / 2 - 15 + (Math.random() * 30 - 15);
+        const y = rect.top + 50;
+
+        heart.style.left = `${x}px`;
+        heart.style.top = `${y}px`;
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 2000);
+      }
+    }
+
+    // Falling tulips logic
+    let tulipInterval;
+    function startTulips() {
+      const tulipImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAABOFBMVEUAAAD///+3t7f////9/f3n5+ff39/r6+v8/Pzm5ubc3NzT09P4+PjGxsa2trbAwMB/f3/q6uq+vr7IyMi+vr6UlJTHx8dxsbHe3t4oKCibm5uEhISkpKSoqKiqqqp6enouLi5NTU3Dw8OZmZn5+fkzMzOYmJhfX19VVVUeHh6hoaHa2tqsrKxJSUlSUlIhISHxLze9AAAAAXRSTlMAQObYZgAAAWZJREFUeNrFk9lywjAQQpURpRRWlJaW9v//Z6FgRKyTNJMtHvYO7GOOHFlScFw8+Ov0e2hITAf3ofblAzmd5ObId5z7Nd1qV0oTXVu71r7uyKBSRXkEK5bB++0gt2WSzFVFLiSvM2+SzG6hxOm4ZrsxzHj9HTQLLxEWDNg6m7Fg5vbf+tdt1eTHp3F3kxRp2zjwv+NGNTh7eHhAKPiV1jNa6xCv0IRZt9BfxKHFQ1etI9hU+b9Hmf6ezU/CSTOIfN7gGBhFjR8AVmyxjPaTFTkAAAAASUVORK5CYII=";
+
+      tulipInterval = setInterval(() => {
+        const tulip = document.createElement('img');
+        tulip.classList.add('tulip');
+        tulip.src = tulipImage;
+        tulip.style.left = Math.random() * window.innerWidth + 'px';
+        tulip.style.animationDuration = (4 + Math.random() * 3) + 's';
+        document.body.appendChild(tulip);
+        setTimeout(() => tulip.remove(), 8000);
+      }, 300);
+    }
+
+    function stopTulips() {
+      clearInterval(tulipInterval);
+      document.querySelectorAll('.tulip').forEach(t => t.remove());
+    }
+  </script>
+
+</body>
+</html>
